@@ -1,0 +1,104 @@
+    1  ls
+    2  df -h
+    3  c;ear
+    4  cat /etc/os-release 
+    5  clear
+    6  wget -O - https://st.timeweb.com/cloud-static/scripts/serial_enable.sh | bash
+    7  cat /etc/os-release
+    8  clear
+    9  cat /etc/os-release
+   10  ls -la /boot/grub2 /boot/efi/EFI 2>/dev/null
+   11  cat /proc/cmdline
+   12  command -v grubby
+   13  command -v grub2-mkconfig
+   14  cp -a /boot/grub2/grubenv /boot/grub2/grubenv.bak
+   15  grubby --update-kernel=ALL --args="console=tty0 console=ttyS0,115200n8"
+   16  systemctl enable --now serial-getty@ttyS0.service
+   17  systemctl is-active serial-getty@ttyS0.service
+   18  mkdir -p /etc/systemd/system/serial-getty@ttyS0.service.d
+   19  cat > /etc/systemd/system/serial-getty@ttyS0.service.d/override.conf <<'EOF'
+   20  [Service]
+   21  ExecStart=
+   22  ExecStart=-/sbin/agetty -o '-p -- \\u' -s 115200,9600,38400,57600 %I $TERM
+   23  EOF
+   24  systemctl daemon-reload
+   25  systemctl restart serial-getty@ttyS0.service
+   26  grubby --info=DEFAULT
+   27  systemctl status serial-getty@ttyS0.service
+   28  mkdir -p ~/mephi-session-project-2026
+   29  nmcli connection show
+   30  nmcli connection show ens3 | grep ipv4.method
+   31  nmcli connection modify ens3 ipv4.method auto
+   32  nmcli connection up ens3
+   33  hostnamectl set-hostname mephi-2026.domain.local
+   34  hostnamectl
+   35  ping -c 4 8.8.8.8 > ~/mephi-session-project-2026/ping.out
+   36  cat ~/mephi-session-project-2026/ping.out
+   37  dnf update -y
+   38  dnf install -y nginx libcap-ng-utils
+   39  mkdir -p /tmp/mephi-tcpdump
+   40  dnf download --resolve --downloaddir=/tmp/mephi-tcpdump tcpdump
+   41  rpm -Uvh --replacepkgs /tmp/mephi-tcpdump/*.rpm
+   42  rpm -q tcpdump
+   43  dnf history > ~/mephi-session-project-2026/dnf.out
+   44  lsblk
+   45  parted --script /dev/sda mklabel gpt
+   46  parted --script /dev/sda mkpart primary ext4 1MiB 100%
+   47  partprobe /dev/sda
+   48  mkfs.ext4 -L MEPHI_WEB /dev/sda1
+   49  mkdir -p /mephi-web
+   50  grep -qxF 'LABEL=MEPHI_WEB /mephi-web ext4 defaults 0 2' /etc/fstab || printf '\nLABEL=MEPHI_WEB /mephi-web ext4 defaults 0 2\n' >> /etc/fstab
+   51  systemctl daemon-reload
+   52  mount /mephi-web
+   53  cp /etc/fstab ~/mephi-session-project-2026/fstab
+   54  systemctl start nginx
+   55  systemctl enable nginx
+   56  journalctl -u nginx -b > ~/mephi-session-project-2026/journalctl.out
+   57  mkdir -p /data/mephi-2026
+   58  groupadd developers
+   59  useradd -m -u 5501 -G developers user1
+   60  useradd -m -u 5502 -G developers user2
+   61  useradd -m -u 5503 -G developers user3
+   62  groupadd -g 4444 curators
+   63  useradd -m -G curators curator1
+   64  useradd -m -G curators curator2
+   65  chown root:developers /data/mephi-2026
+   66  chmod 2770 /data/mephi-2026
+   67  setfacl -m g:curators:r-x /data/mephi-2026
+   68  setfacl -d -m g:curators:r-x /data/mephi-2026
+   69  ls -ld /data/mephi-2026 && getfacl /data/mephi-2026
+   70  setfacl -d -m g:developers:rwx /data/mephi-2026
+   71  getfacl /data/mephi-2026
+   72  stat /data/mephi-2026 > ~/mephi-session-project-2026/stat.out
+   73  cp /etc/passwd /etc/group ~/mephi-session-project-2026/
+   74  ls -l /usr/sbin/tcpdump
+   75  setcap cap_net_raw+ep /usr/sbin/tcpdump
+   76  getcap /usr/sbin/tcpdump | tee ~/mephi-session-project-2026/getcap.out
+   77  sudo -u user1 tcpdump
+   78  getenforce | tee ~/mephi-session-project-2026/getenforce.out
+   79  ls -ldZ /mephi-web
+   80  semanage fcontext -a -t httpd_sys_content_t "/mephi-web(/.*)?"
+   81  restorecon -Rv /mephi-web
+   82  ls -ldZ /mephi-web
+   83  stat /mephi-web >> ~/mephi-session-project-2026/stat.out
+   84  usermod -s /sbin/nologin curator1
+   85  usermod -s /sbin/nologin curator2
+   86  grep curator /etc/passwd
+   87  getent passwd nnt user1 user2 user3 | cut -d: -f1,7
+   88  cp /etc/passwd ~/mephi-session-project-2026/passwd
+   89  chage -M 90 user1
+   90  chage -M 90 user2
+   91  chage -M 90 user3
+   92  chage -M 90 curator1
+   93  chage -M 90 curator2
+   94  echo 'minlen = 12' | tee -a /etc/security/pwquality.conf
+   95  echo 'enforce_for_root' | tee -a /etc/security/pwquality.conf
+   96  cp /etc/shadow /etc/security/pwquality.conf ~/mephi-session-project-2026/
+   97  ```
+   98  cp /etc/shadow /etc/security/pwquality.conf ~/mephi-session-project-2026/
+   99  echo "Hello from Student: М265852" | tee /mephi-web/index.html
+  100  cp -a /etc/nginx/nginx.conf /etc/nginx/nginx.conf.mephi-backup
+  101  sed -i 's|/usr/share/nginx/html|/mephi-web|g' /etc/nginx/nginx.conf
+  102  nginx -t && systemctl reload nginx
+  103  curl http://localhost/ | tee ~/mephi-session-project-2026/curl.out
+  104  history > ~/mephi-session-project-2026/history.out
